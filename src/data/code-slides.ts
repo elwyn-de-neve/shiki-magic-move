@@ -1,9 +1,11 @@
 export interface CodeSlide {
   id: number;
   title: string;
+  fileName?: string;
   code: string;
   secondaryCode?: {
     title: string;
+    fileName?: string;
     code: string;
   };
   description?: string;
@@ -14,6 +16,7 @@ export const functionalComponentsSlides: CodeSlide[] = [
   {
     id: 1,
     title: "Functie Declaratie Basis",
+    fileName: "src/components/Greeting.jsx",
     code: `// Named function declaration
 function Greeting() {
   return <h1>Hello, World!</h1>
@@ -28,6 +31,7 @@ const GreetingArrow = () => {
   {
     id: 2,
     title: "Verkorte Return Syntax",
+    fileName: "src/components/Greeting.jsx",
     code: `// Named function with explicit return
 function Greeting() {
   return <h1>Hello, World!</h1>
@@ -42,6 +46,7 @@ const GreetingArrow = () => <h1>Hello, World!</h1>
   {
     id: 3,
     title: "Logica Toevoegen",
+    fileName: "src/components/Greeting.jsx",
     code: `function Greeting() {
   // You can add logic before the return
   const name = "Developer"
@@ -59,6 +64,7 @@ const GreetingArrow = () => <h1>Hello, World!</h1>
   {
     id: 4,
     title: "Named Exports",
+    fileName: "src/components/Greeting.jsx",
     code: `// greetings.jsx
 export function Greeting() {
   return <h1>Hello, World!</h1>
@@ -69,6 +75,7 @@ export function Farewell() {
 }`,
     secondaryCode: {
       title: "src/components/Greeting.jsx (Source Code)",
+      fileName: "src/app/page.jsx",
       code: `// app.jsx
 import { Greeting, Farewell } from '@/components/Greeting'
 
@@ -86,6 +93,7 @@ export default function App() {
   {
     id: 5,
     title: "Default Export",
+    fileName: "src/components/Greeting.jsx",
     code: `// greeting.jsx
 function Greeting() {
   return <h1>Hello, World!</h1>
@@ -95,6 +103,7 @@ function Greeting() {
 export default Greeting`,
     secondaryCode: {
       title: "src/components/Greeting.jsx (Source Code)",
+      fileName: "src/app/page.jsx",
       code: `// app.jsx
 import Greeting from '@/components/Greeting'
 // or
@@ -113,6 +122,7 @@ export const basicButtonsSlides: CodeSlide[] = [
   {
     id: 1,
     title: "Eenvoudige Button Component",
+    fileName: "src/components/Button.jsx",
     code: `function Button() {
   return (
     <button>
@@ -125,6 +135,7 @@ export const basicButtonsSlides: CodeSlide[] = [
   {
     id: 2,
     title: "Button met Text Property",
+    fileName: "src/components/Button.jsx",
     code: `function Button({ text }) {
   return (
     <button>
@@ -134,6 +145,7 @@ export const basicButtonsSlides: CodeSlide[] = [
 }`,
     secondaryCode: {
       title: "src/components/Button.jsx (Source Code)",
+      fileName: "src/app/page.jsx",
       code: `function App() {
   return (
     <div>
@@ -148,6 +160,7 @@ export const basicButtonsSlides: CodeSlide[] = [
   {
     id: 3,
     title: "Button met Click Handler",
+    fileName: "src/components/Button.jsx",
     code: `function Button({ text, onClick }) {
   return (
     <button onClick={onClick}>
@@ -157,6 +170,7 @@ export const basicButtonsSlides: CodeSlide[] = [
 }`,
     secondaryCode: {
       title: "src/app/page.jsx (Using the Component)",
+      fileName: "src/app/page.jsx",
       code: `function App() {
   const handleClick = () => {
     alert('Button clicked!')
@@ -175,6 +189,7 @@ export const basicButtonsSlides: CodeSlide[] = [
   {
     id: 4,
     title: "Button met Properties",
+    fileName: "src/components/Button.jsx",
     code: `function Button({ text, onClick, disabled }) {
   return (
     <button 
@@ -187,6 +202,7 @@ export const basicButtonsSlides: CodeSlide[] = [
 }`,
     secondaryCode: {
       title: "src/app/page.jsx (Implementation Example)",
+      fileName: "src/app/page.jsx",
       code: `function App() {
   const handleClick = () => {
     console.log('Clicked!')
@@ -211,7 +227,7 @@ export const basicButtonsSlides: CodeSlide[] = [
 ];
 
 // Export all slide decks
-export const codeSlideDecks = {
+export const codeSlideDecks: Record<string, CodeSlide[]> = {
   functionalComponents: functionalComponentsSlides,
   basicButtons: basicButtonsSlides
 };

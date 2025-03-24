@@ -6,41 +6,41 @@ import { ShikiMagicMove } from 'shiki-magic-move/react'
 import { CodePresentation } from '@/components/CodePresentation'
 import { codeSlideDecks } from '@/data/code-slides'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ThemeToggle } from '@/components/theme-toggle'
+import { useTheme } from 'next-themes'
 
 import 'shiki-magic-move/dist/style.css'
 
 export default function Home() {
   const [selectedDeck, setSelectedDeck] = useState<keyof typeof codeSlideDecks>('functionalComponents')
   const [highlighter, setHighlighter] = useState<HighlighterCore>()
+  const { theme, systemTheme } = useTheme()
 
   useEffect(() => {
     async function initializeHighlighter() {
       const highlighter = await createHighlighter({
-        themes: ['vitesse-dark'],
+        themes: ['vitesse-dark', 'vitesse-light'],
         langs: ['javascript', 'typescript', 'tsx', 'jsx'],
       })
       setHighlighter(highlighter)
     }
     initializeHighlighter()
-  }, [])
+  }, [theme, systemTheme])
 
   return (
-    <main className="min-h-screen flex flex-col bg-black text-white">
-      <header className="py-3 px-6 border-b border-gray-800">
+    <main className="min-h-screen flex flex-col bg-background text-foreground">
+      <header className="py-3 px-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Code Presentation</h1>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-300">
-              Select presentation:
-            </span>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold">Code Presentation</h1>
             <Select
               value={selectedDeck as string}
               onValueChange={(value) => setSelectedDeck(value as keyof typeof codeSlideDecks)}
             >
-              <SelectTrigger className="w-[180px] border-gray-700 bg-gray-900 text-gray-300">
+              <SelectTrigger className="w-[180px] border-border bg-card text-muted-foreground">
                 <SelectValue placeholder="Select a presentation" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700 text-gray-300">
+              <SelectContent className="bg-card border-border text-muted-foreground">
                 {Object.keys(codeSlideDecks).map((deck) => (
                   <SelectItem key={deck} value={deck}>
                     {deck.charAt(0).toUpperCase() + deck.slice(1)}
@@ -49,6 +49,7 @@ export default function Home() {
               </SelectContent>
             </Select>
           </div>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -60,7 +61,7 @@ export default function Home() {
           />
         </div>
       ) : (
-        <div className="flex justify-center items-center h-64 text-gray-300">
+        <div className="flex justify-center items-center h-64 text-muted-foreground">
           <p>Loading syntax highlighter...</p>
         </div>
       )}
