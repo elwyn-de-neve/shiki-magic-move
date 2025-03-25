@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowRight, Copy, Check, SplitSquareHorizontal, X } from 'lu
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { log } from 'console'
 
 interface CodePresentationProps {
     slides: CodeSlide[]
@@ -22,9 +23,27 @@ interface CodeBlockProps {
     code: string
     highlighter: HighlighterCore
     className?: string
+    showPrimarySecondary?: boolean
+    activeTab?: 'primary' | 'secondary'
+    onTabChange?: (tab: 'primary' | 'secondary') => void
+    showSplitViewToggle?: boolean
+    isSplitView?: boolean
+    onSplitViewToggle?: () => void
 }
 
-function CodeBlock({ title, fileName, code, highlighter, className }: CodeBlockProps) {
+function CodeBlock({
+    title,
+    fileName,
+    code,
+    highlighter,
+    className,
+    showPrimarySecondary,
+    activeTab,
+    onTabChange,
+    showSplitViewToggle,
+    isSplitView,
+    onSplitViewToggle
+}: CodeBlockProps) {
     const [isCopied, setIsCopied] = useState(false);
     const { resolvedTheme } = useTheme();
     const [currentTheme, setCurrentTheme] = useState(resolvedTheme);
@@ -43,34 +62,64 @@ function CodeBlock({ title, fileName, code, highlighter, className }: CodeBlockP
         }
     };
 
+
     return (
         <div className={cn("relative rounded-lg bg-card h-full overflow-hidden border border-border", className)}>
-            <div className="p-4 border-b border-border">
+            <div className="p-2 border-b border-border">
                 <div className="flex justify-between items-center">
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm p-2 text-muted-foreground">
                         {fileName || title}
                     </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={copyToClipboard}
-                        className="bg-background border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                        {isCopied ? (
-                            <>
-                                <Check className="h-4 w-4 mr-1" />
-                                Copied
-                            </>
-                        ) : (
-                            <>
-                                <Copy className="h-4 w-4 mr-1" />
-                                Copy
-                            </>
+                    <div className="flex items-center gap-2">
+                        {showPrimarySecondary && (
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                        "text-sm text-muted-foreground",
+                                        activeTab === 'primary' && "bg-muted text-foreground"
+                                    )}
+                                    onClick={() => onTabChange?.('primary')}
+                                >
+                                    Primary
+                                </Button>
+                                <Button variant="secondary">Test</Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                        "text-sm text-muted-foreground",
+                                        activeTab === 'secondary' && "bg-muted text-foreground"
+                                    )}
+                                    onClick={() => onTabChange?.('secondary')}
+                                >
+                                    Secondary
+                                </Button>
+                            </div>
                         )}
-                    </Button>
+                        {showSplitViewToggle && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="border-border text-muted-foreground hover:text-foreground"
+                                onClick={onSplitViewToggle}
+                            >
+                                {isSplitView ? <X className="h-4 w-4" /> : <SplitSquareHorizontal className="h-4 w-4" />}
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
-            <div className="p-4 h-[calc(100%-3.5rem)] overflow-auto">
+            <div className="relative p-4 h-[calc(100%-3.5rem)] overflow-auto">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={copyToClipboard}
+                    className="absolute top-2 right-2 z-10 bg-background/50 backdrop-blur-sm hover:bg-background/80 text-muted-foreground hover:text-foreground"
+                >
+                    {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
                 <ShikiMagicMove
                     key={currentTheme}
                     lang="tsx"
@@ -141,47 +190,8 @@ export function CodePresentation({ slides, highlighter }: CodePresentationProps)
             <div className="space-y-2 py-2">
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-foreground">{currentSlide.title}</h2>
-                    {hasSecondaryCode && (
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="border-border text-muted-foreground hover:text-foreground"
-                            onClick={toggleView}
-                        >
-                            {isSplitView ? <X className="h-4 w-4" /> : <SplitSquareHorizontal className="h-4 w-4" />}
-                        </Button>
-                    )}
                 </div>
                 <p className="text-sm text-muted-foreground">{currentSlide.description}</p>
-                <div className="text-xs text-muted-foreground">
-                    Slide {currentSlideIndex + 1} of {slides.length}
-                </div>
-                {hasSecondaryCode && !isSplitView && (
-                    <div className="flex gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                                "text-sm text-muted-foreground",
-                                activeTab === 'primary' && "bg-muted text-foreground"
-                            )}
-                            onClick={() => setActiveTab('primary')}
-                        >
-                            Primary
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                                "text-sm text-muted-foreground",
-                                activeTab === 'secondary' && "bg-muted text-foreground"
-                            )}
-                            onClick={() => setActiveTab('secondary')}
-                        >
-                            Secondary
-                        </Button>
-                    </div>
-                )}
             </div>
 
             <div className="flex-1 min-h-0 pt-4">
@@ -193,6 +203,12 @@ export function CodePresentation({ slides, highlighter }: CodePresentationProps)
                                 fileName={currentSlide.fileName}
                                 code={currentSlide.code}
                                 highlighter={highlighter}
+                                showPrimarySecondary={!isSplitView && hasSecondaryCode}
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                                showSplitViewToggle={hasSecondaryCode}
+                                isSplitView={isSplitView}
+                                onSplitViewToggle={toggleView}
                             />
                             {currentSlide.secondaryCode && (
                                 <CodeBlock
@@ -200,6 +216,12 @@ export function CodePresentation({ slides, highlighter }: CodePresentationProps)
                                     fileName={currentSlide.secondaryCode.fileName}
                                     code={currentSlide.secondaryCode.code}
                                     highlighter={highlighter}
+                                    showPrimarySecondary={!isSplitView && hasSecondaryCode}
+                                    activeTab={activeTab}
+                                    onTabChange={setActiveTab}
+                                    showSplitViewToggle={hasSecondaryCode}
+                                    isSplitView={isSplitView}
+                                    onSplitViewToggle={toggleView}
                                 />
                             )}
                         </div>
@@ -212,6 +234,12 @@ export function CodePresentation({ slides, highlighter }: CodePresentationProps)
                                     code={currentSlide.code}
                                     highlighter={highlighter}
                                     className="h-full"
+                                    showPrimarySecondary={!isSplitView && hasSecondaryCode}
+                                    activeTab={activeTab}
+                                    onTabChange={setActiveTab}
+                                    showSplitViewToggle={hasSecondaryCode}
+                                    isSplitView={isSplitView}
+                                    onSplitViewToggle={toggleView}
                                 />
                             ) : currentSlide.secondaryCode && (
                                 <CodeBlock
@@ -220,6 +248,12 @@ export function CodePresentation({ slides, highlighter }: CodePresentationProps)
                                     code={currentSlide.secondaryCode.code}
                                     highlighter={highlighter}
                                     className="h-full"
+                                    showPrimarySecondary={!isSplitView && hasSecondaryCode}
+                                    activeTab={activeTab}
+                                    onTabChange={setActiveTab}
+                                    showSplitViewToggle={hasSecondaryCode}
+                                    isSplitView={isSplitView}
+                                    onSplitViewToggle={toggleView}
                                 />
                             )}
                         </div>
@@ -235,7 +269,7 @@ export function CodePresentation({ slides, highlighter }: CodePresentationProps)
                 )}
             </div>
 
-            <div className="flex justify-between pt-4">
+            <div className="flex justify-between items-center pt-4">
                 <Button
                     variant="outline"
                     onClick={goToPreviousSlide}
@@ -245,6 +279,9 @@ export function CodePresentation({ slides, highlighter }: CodePresentationProps)
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Previous
                 </Button>
+                <div className="text-xs text-muted-foreground">
+                    Slide {currentSlideIndex + 1} of {slides.length}
+                </div>
                 <Button
                     variant="outline"
                     onClick={goToNextSlide}
